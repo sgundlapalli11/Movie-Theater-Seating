@@ -1,17 +1,17 @@
 # Movie-Theater-Seating
 
-How to run
+## How to run
 ```
 javac Theatre.java
 java Theatre absolute_path_to_repo/test/test_file#.txt
 ```
 
-View Results
+## View Results
 ```
 cat absolute_path_to_repo/output/test_file#_output.txt
 ```
 
-Assumptions
+## Assumptions
 - Only 1 client. Do not need to worry about multithreading and race conditions 
 - Customer satisfaction is defined by:
   - wanting to sit with your group
