@@ -5,10 +5,6 @@ import java.util.Arrays;
 import java.io.File;
 import java.io.FileWriter;
 
-// @TODO Add javadocs to all functions and classes
-// @TODO book larger reservations first
-// assumption -> these reservations come one by one so i dont know upfront how many seats are required
-
 public class Theatre implements TheatreInterface{
 	public final int NUM_ROWS = 10;
 	public final int NUM_SEATS = 20;
@@ -38,7 +34,8 @@ public class Theatre implements TheatreInterface{
 	}
 
 	/**
-	 * 
+	 * Reads in input file and creates all the reservations for the Theatre
+	 * @input filename, absolute path to file containing reservation requests
 	 */
 	public void readFile(String filename) {
 		try {
@@ -57,18 +54,13 @@ public class Theatre implements TheatreInterface{
 		}
 	}
 
-	// public void createAndWriteFile(String filename) {
-	// 	String outputFile = "./test/" + filename;
-
-	// 	try {
-	// 		System.out.println("createAndWriteFile");
-	// 	} catch (Exception e) {
-	// 		System.out.println(e);
-	// 	}
-	// }
-
+	/**
+	 * Finds and assigns seats for each reservation and outputs result to output/ folder
+	 * @return the absolute path of the output file
+	 */
 	public String handleReservations() {
 		String outputFilePath = System.getProperty("user.dir") + "\\output\\" + this.fileName + "_output.txt";
+
 		try {
 			File output = new File(outputFilePath);
 			output.createNewFile();
@@ -86,14 +78,20 @@ public class Theatre implements TheatreInterface{
 		return outputFilePath;
 	}
 
+	/**
+	 * Finds the next available seats in the theatre and then reserves the seats
+	 * Will not reserve seats if the whole reservation cannot be completed
+	 * @input r, the reservation object containing the ID and # of seats requested
+	 * @return String containing the reservation ID as well as the seats assigned
+	 */
 	public String requestSeats(Reservation r) {
 		if (r.seatsRequested <= 0) {
-			return "Reservation " + r.id + "requested 0 or fewer tickets. Why did you do this?";
+			return "Reservation " + r.id + " requested 0 or fewer tickets. Why did you do this?\n";
 		}
 
 		if (r.seatsRequested > ((NUM_ROWS * NUM_SEATS) - seatsTaken)) {
 			return "Reservation " + r.id + " was unable to be processed as" 
-				+ " there weren't enough seats available";
+				+ " there weren't enough seats available\n";
 		}
 
 		List<Seat> seatsToReserve = findAvailableSeats(r.seatsRequested);
@@ -101,6 +99,11 @@ public class Theatre implements TheatreInterface{
 		return generateOutputString(r, seatsToReserve); 
 	}
 
+	/**
+	 * Finds the group of next available seats
+	 * @input seatsRequested, the number of seats to find
+	 * @return returns a list of the next amount of free seats
+	 */
 	public List<Seat> findAvailableSeats(int seatsRequested) {
 		List<Seat> res = new ArrayList<>();
 		
@@ -111,13 +114,22 @@ public class Theatre implements TheatreInterface{
 		return res;
 	}
 
+	/**
+	 * Marks the seats as occupied
+	 * @input seats, the list of seats assigned to a reservation 
+	 */
 	public void reserveSeats(List<Seat> seats) {
 		for (Seat seat : seats) {
 			seat.reserve();
+			this.seatsTaken++;
 		}
-		this.seatsTaken++;
 	}
 
+	/**
+	 * Iterator for the seats in the theatre, goes from left to right, right to left, and so on
+	 * starts from the backmost row and works its way up
+	 * @return seat, the next available seat that is free
+	 */
 	public Seat getNextSeat(){
 		Seat res = this.seats[seatingCurrentRow][nextSeat];
 
@@ -141,10 +153,10 @@ public class Theatre implements TheatreInterface{
 		return res;
 	}
 
-	public String generateOutputString(Reservation r, List<Seat> seatsToReserve) {
+	public String generateOutputString(Reservation r, List<Seat> reservedSeats) {
 		StringBuilder sb = new StringBuilder();
 		sb.append(r.id + " ");
-		for (Seat seat : seatsToReserve) {
+		for (Seat seat : reservedSeats) {
 			sb.append(seat);
 			sb.append(",");
 		}
@@ -160,14 +172,11 @@ public class Theatre implements TheatreInterface{
 			for (int j = 0; j < seats[0].length; j++) {
 				if (seats[i][j].occupied) {
 					sb.append("1 ");
-					//System.out.print("1 ");
 				} else {
 					sb.append("0 ");
-					//System.out.print("0 ");
 				}
 			}
 			sb.append("\n");
-			//System.out.println("");
 		}
 		return sb.toString();
 	}
@@ -178,13 +187,6 @@ public class Theatre implements TheatreInterface{
 		t.readFile(args[0]);
 		System.out.println(t.handleReservations());
 
-		// System.out.println(t.requestSeats(new Reservation("R000", 2)));
-		// System.out.println(t.requestSeats(new Reservation("R001", 5)));
-		// System.out.println(t.requestSeats(new Reservation("R002", 200)));
-		// System.out.println(t.requestSeats(new Reservation("R003", 50)));
-		// System.out.println(t.requestSeats(new Reservation("R004", 22)));
-		// System.out.println(t.requestSeats(new Reservation("R005", 21)));
-		//System.out.println(t.requestSeats(new Reservation("R004", 100)));
 		System.out.println(t.toString());
 	}
 }
