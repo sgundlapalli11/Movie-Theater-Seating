@@ -3,6 +3,11 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Arrays;
 import java.io.File;
+import java.io.FileWriter;
+
+// @TODO Add javadocs to all functions and classes
+// @TODO book larger reservations first
+// assumption -> these reservations come one by one so i dont know upfront how many seats are required
 
 public class Theatre implements TheatreInterface{
 	public final int NUM_ROWS = 10;
@@ -13,8 +18,9 @@ public class Theatre implements TheatreInterface{
 	public int seatingCurrentRow;
 	public int nextSeat;
 
-	public boolean right = true;
+	public boolean right;
 	public List<Reservation> reservations;
+	public String fileName;
 	
 	public Theatre() {
 		this.seats = new Seat[NUM_ROWS][NUM_SEATS];
@@ -27,16 +33,23 @@ public class Theatre implements TheatreInterface{
 		this.nextSeat = 0;
 		this.seatingCurrentRow = this.seats.length - 1;
 		this.reservations = new ArrayList<>();
+		this.right = true;
+		this.seatsTaken = 0;
 	}
 
-	public void readFile(String fileName) {
+	/**
+	 * 
+	 */
+	public void readFile(String filename) {
 		try {
-			Scanner sc = new Scanner(new File(fileName));
+			File f = new File(filename);
+			Scanner sc = new Scanner(f);
+			String filenameWithExtension = f.getName();
+			this.fileName = filenameWithExtension.substring(0, filenameWithExtension.lastIndexOf('.'));
 
 			while (sc.hasNextLine()) {
 				String line = sc.nextLine();
 				String[] request = line.split(" ");
-				System.out.println(Arrays.toString(request));
 				this.reservations.add(new Reservation(request[0], Integer.parseInt(request[1])));
 			}
 		} catch (Exception e) {
@@ -44,10 +57,33 @@ public class Theatre implements TheatreInterface{
 		}
 	}
 
-	public void handleReservations() {
-		for (Reservation r : this.reservations) {
-			this.requestSeats(r);
+	// public void createAndWriteFile(String filename) {
+	// 	String outputFile = "./test/" + filename;
+
+	// 	try {
+	// 		System.out.println("createAndWriteFile");
+	// 	} catch (Exception e) {
+	// 		System.out.println(e);
+	// 	}
+	// }
+
+	public String handleReservations() {
+		String outputFilePath = System.getProperty("user.dir") + "\\output\\" + this.fileName + "_output.txt";
+		try {
+			File output = new File(outputFilePath);
+			output.createNewFile();
+			FileWriter writer = new FileWriter(output);
+			for (Reservation r : this.reservations) {
+				writer.write(this.requestSeats(r));
+			}
+
+			writer.close();
+
+		} catch (Exception e) {
+			System.out.println(e);
 		}
+
+		return outputFilePath;
 	}
 
 	public String requestSeats(Reservation r) {
@@ -61,7 +97,6 @@ public class Theatre implements TheatreInterface{
 		}
 
 		List<Seat> seatsToReserve = findAvailableSeats(r.seatsRequested);
-		System.out.println(seatsToReserve.toString());
 		reserveSeats(seatsToReserve);
 		return generateOutputString(r, seatsToReserve); 
 	}
@@ -73,7 +108,6 @@ public class Theatre implements TheatreInterface{
 			res.add(getNextSeat());
 		}
 		
-
 		return res;
 	}
 
@@ -115,6 +149,7 @@ public class Theatre implements TheatreInterface{
 			sb.append(",");
 		}
 		sb.deleteCharAt(sb.length() - 1);
+		sb.append('\n');
 		return sb.toString();
 	}
 	
@@ -141,7 +176,7 @@ public class Theatre implements TheatreInterface{
 		Theatre t = new Theatre();
 
 		t.readFile(args[0]);
-		t.handleReservations();
+		System.out.println(t.handleReservations());
 
 		// System.out.println(t.requestSeats(new Reservation("R000", 2)));
 		// System.out.println(t.requestSeats(new Reservation("R001", 5)));
