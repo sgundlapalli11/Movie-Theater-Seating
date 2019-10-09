@@ -20,3 +20,4 @@ cat absolute_path_to_repo/output/test_file#_output.txt
   - gaps between parties
 - Reservation IDs passed in are unique. Do not need to worry about reservations being updated
 - Reservation come in 1-by-1 so do not know how many total tickets are requested upfront
+- If any amount of tickets can't be given to a reservation. None of the tickets will be issued
